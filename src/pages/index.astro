@@ -1,0 +1,74 @@
+---
+import HomeLayout from "../layouts/HomeLayout.astro";
+---
+
+<HomeLayout>
+  <section class="container mx-auto px-4 lg:px-8">
+    <form class="p-8 rounded-md w-full mt-32" method="post">
+      <h1 class="text-2xl pb-8">Link Shortener!</h1>
+      <div class="flex">
+        <label for="input-url" class="w-3/4 pr-4">
+          <span class="absolute -translate-y-full">Input your URL here:</span>
+          <input
+            id="input-url"
+            name="url"
+            class="p-2 w-full rounded-md border"
+          />
+        </label>
+        <button
+          type="submit"
+          class="w-1/4 px-2 bg-blue-600 text-white rounded-md"
+        >
+          Shorten!
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Shortened Links -->
+  <section class="container mx-auto px-4 lg:px-8">
+    <h1 class="text-2xl">Shortened Links</h1>
+    <ul class="border border-blue-600 p-8 rounded-xl min-h-[200px]">
+      <li>
+        <a href="https://google.com">https://google.com</a>
+      </li>
+    </ul>
+  </section>
+</HomeLayout>
+
+<script>
+  const form = document.querySelector("form")!;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const url = formData.get("url");
+
+    const res = await fetch("/api/link/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer",
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    if (!res.ok) {
+      console.log("Error", res);
+      return;
+    }
+
+    const data = await res.json();
+
+    console.log(data);
+
+    const ul = document.querySelector("ul")!;
+    const li = document.createElement("li");
+
+    li.innerHTML = `<a href="${data.shortened}">${data.shortened}</a>`;
+    ul.appendChild(li);
+
+    form.reset();
+  });
+</script>
